@@ -1,3 +1,7 @@
 .ipynb_checkpoints
 node_modules
 package-lock.json
+
+# directory
+data/
+test/
