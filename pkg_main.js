@@ -5,7 +5,6 @@
  */
 var pkg = {};
 
-pkg.print = console.log;
 
 pkg.merge_dict = function() {
   var ans = {};

@@ -5,12 +5,6 @@ const path = require("path")
 const fs = require('fs');
 
 
-USERPROFILE = process.env.USERPROFILE // .replace(/\\/g, "/")
-DIR = {
-  PRIVATE_KEY: USERPROFILE + "/.config/earthengine/.private-key.json",
-  GEE: USERPROFILE + "/gee"
-}
-
 function write_disk(x, f) {
   fs.writeFile(f, x, (err) => {
     if (err) {
@@ -48,14 +42,6 @@ async function ee_write_json(x, f) {
 //   var x2 = await x.getInfo()
 //   write_json(x2, f)
 // }
-
-function ee_init() {
-  var private_key = require(DIR.PRIVATE_KEY);
-  ee.data.authenticateViaPrivateKey(private_key, () => {
-    ee.initialize();
-  });
-}
-
 function run_exec(cmd) {
   exec(cmd, (err, stdout, stderr) => {
     if (err) {
@@ -85,20 +71,21 @@ function ee_require(url, dir_gee) {
 }
 
 var pkg_root = {
-  DIR: DIR,
   write_json: write_json,
   write_disk: write_disk,
   ee_write_json: ee_write_json, 
-  ee_init: ee_init,
   run_exec: run_exec,
   ee_require: ee_require
 }
 
+
+require("./src/global.js");
+var pkg_auth = require("./src/ee_auth.js");
 var pkg_main = require("./pkg_main.js");
 var pkg_export = require("./pkg_export.js");
 var pkg_extract = require("./pkg_extract.js");
 
-var pkg = pkg_main.merge_dict(pkg_root, pkg_main, pkg_extract, pkg_export);
+var pkg = pkg_main.merge_dict(pkg_auth, pkg_root, pkg_main, pkg_extract, pkg_export);
 
 exports = pkg;
 if (typeof module !== "undefined") module.exports = exports;
