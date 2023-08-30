@@ -5,6 +5,7 @@ package-lock.json
 *.jpg
 *.png
 *.tif
+*.csv
 
 # directory
 data/
