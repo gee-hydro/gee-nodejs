@@ -22,6 +22,6 @@ pkg.default_true = function(x) {
   return (typeof x === "undefined") ? true : x;
 }
 
-
+// global not work in online mode
 exports = pkg;
 if (typeof module !== "undefined") module.exports = exports;

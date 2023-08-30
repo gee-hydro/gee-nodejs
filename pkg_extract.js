@@ -4,16 +4,34 @@
  * For a copy, see <https://opensource.org/licenses/MIT>.
  */
 
-function guess_reduce_option(col) {
+var pkg = {};
+
+// https://code.earthengine.google.com/1df3b3d8534f277000f59aab03eecca6
+pkg.extract = function (col, fc, task, options) {
+  var img = col.first().select(0);
+  var prj = img.projection();
+  var scale = prj.nominalScale();
+
+  options = options || {};
+  options.region = fc;
+
+  options.projection = options.projection || prj;
+  options.scale = options.scale || scale;
+  var ans = col.map(function (x) { return x.unmask(-99); })
+    .toArray().sample(options);
+  var val = ans.toList(ans.size()).map(function (i) { return ee.Feature(i).get('array') });
+
+  val = ee.Algorithms.If(ee.Algorithms.ObjectType(fc).equals("FeatureCollection"), val, val.get(0));
+  if (task) print(task, val);
+  return val;
+};
+
+pkg.guess_reduce_option = function (col) {
   var img = ee.Image(col.first()).select(0);
   var prj = img.projection();
   var scale = prj.nominalScale();
   return { reducer: "first", crs: prj, scale: scale, tileScale: 16 };
-}
-
-function st_drop_geometry(f) {
-  return ee.Feature(null).copyProperties(f);
-}
+};
 
 /**
  * ee_extract_img(img, fc, options)
@@ -36,7 +54,7 @@ function st_drop_geometry(f) {
  * tile size; using a larger tileScale (e.g. 2 or 4) may enable computations
  * that run out of memory with the default.
  */
-function ee_extract_img(img, fc, options) {
+pkg.ee_extract_img = function(img, fc, options) {
   options = options || {};
   options.reducer = options.reducer || "first";
   // var prj = img.select(0).projection();
@@ -51,16 +69,16 @@ function ee_extract_img(img, fc, options) {
       .set('date', ee.Date(img.get('system:time_start')).format('yyyy-MM-dd'));
   });
   return data;
-}
+};
 
 
-function _extract_col(col, fc, options) {
+pkg._extract_col = function (col, fc, options) {
   return col.map(function (img) {
-    return ee_extract_img(img, fc, options);
+    return pkg.ee_extract_img(img, fc, options);
   }, true).flatten();
-}
+};
 
-function ee_extract_col(col, fc, options) {
+pkg.ee_extract_col = function (col, fc, options) {
   options = options || {};
   options.reducer = options.reducer || "first";
   options.collection = fc;
@@ -69,7 +87,7 @@ function ee_extract_col(col, fc, options) {
   var data;
 
   if (!options.nchunk) {
-    data = _extract_col(col, fc, options);
+    data = pkg._extract_col(col, fc, options);
   } else {
     var nchunk = options.nchunk;
     var n = fc.size();
@@ -83,27 +101,24 @@ function ee_extract_col(col, fc, options) {
       var fc_i = ee.FeatureCollection(fc.slice(i_begin, i_end));
       var task = file.concat("_").concat(i);
 
-      data = _extract_col(col, fc_i, options);
+      data = pkg._extract_col(col, fc_i, options);
       // pkg_buffer.Export_Table(data, save, task, folder, fileFormat);
     }
   }
   return data;
-}
+};
+
+pkg.st_drop_geometry = function (f) {
+  return ee.Feature(null).copyProperties(f);
+};
 
 // return list of dict
-function sf_to_dict(data, drop_index) {
+pkg.sf_to_dict = function (data, drop_index) {
   var props = data.first().propertyNames();
   if (drop_index) props = props.slice(1, props.size());
   return data.toList(data.size()).map(function (x) { return ee.Feature(x).toDictionary(props); });
-}
+};
 
-var pkgs = {
-  sf_to_dict: sf_to_dict,
-  st_drop_geometry: st_drop_geometry,
-  ee_extract_img: ee_extract_img,
-  ee_extract_col: ee_extract_col, 
-  guess_reduce_option: guess_reduce_option
-}
 
-exports = pkgs;
+exports = pkg;
 if (typeof module !== "undefined") module.exports = exports;

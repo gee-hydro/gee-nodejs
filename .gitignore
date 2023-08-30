@@ -3,8 +3,14 @@ node_modules
 package-lock.json
 
 *.jpg
+*.png
 *.tif
 
 # directory
 data/
 test/
+Math/
+
+
+*.qmd
+.node*
