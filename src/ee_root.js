@@ -5,6 +5,13 @@ const path = require("path")
 const fs = require('fs');
 
 
+// write fc
+global.st_write = function(fc, file, options) {
+  options = options || { format: "csv" };
+  url = fc.getDownloadURL(options)
+  download(url, file)
+}
+
 function write_disk(x, f) {
   fs.writeFile(f, x, (err) => {
     if (err) {
@@ -53,6 +60,8 @@ function run_exec(cmd) {
   })
 }
 
+
+
 function ee_require(url, dir_gee) {
   dir_gee = dir_gee || DIR.GEE
   var info = url.split(":");
@@ -74,6 +83,7 @@ require("./global.js");
 require("./ee_auth.js");
 
 var pkg = {
+  st_write: st_write,
   write_json: write_json,
   write_disk: write_disk,
   ee_write_json: ee_write_json, 

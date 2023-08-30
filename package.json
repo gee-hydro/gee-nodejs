@@ -1,9 +1,23 @@
 {
+  "name": "gee-nodejs",
+  "description": "GEE in Node.js",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "devDependencies": {},
   "dependencies": {
     "file-saver": "^2.0.5",
     "fs": "^0.0.1-security",
     "googleapis": "^126.0.1",
     "path": "^0.12.7",
     "request": "^2.88.2"
-  }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dongdong Kong",
+  "license": "MIT"
 }
