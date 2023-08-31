@@ -7,8 +7,8 @@
     "example": "examples",
     "test": "test"
   },
-  "devDependencies": {},
   "dependencies": {
+    "@google/earthengine": "^0.1.367",
     "file-saver": "^2.0.5",
     "fs": "^0.0.1-security",
     "googleapis": "^126.0.1",
